@@ -1,6 +1,9 @@
 #include<iostream>
 using namespace std;
 
+// acrescentar cena para armazenar preços das chapas
+// chapas mais caras teem prioridade
+
 int main(){
     int X, Y;
     int n, areaChapa, result = 0;
