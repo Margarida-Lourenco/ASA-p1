@@ -12,8 +12,7 @@ int main(){
         int a, b, price;
         cin >> a >> b >> price;
         if (a > X || b > Y){
-            cout << "0" << endl;
-            break;
+            continue;
         }
         int areaPeca = a * b;
         int qtd = areaChapa / areaPeca;
