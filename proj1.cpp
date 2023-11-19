@@ -1,17 +1,17 @@
-#include<iostream>
-#include<vector>
+#include <iostream>
+#include <vector>
 using namespace std;
 
-struct Plate{
+struct Piece{
     int lenght;
     int width;
     int price;
 };
 
-// recursion that realizes the cut
-int cut(Plate plate, int X, int Y){
-    int a = plate.lenght;
-    int b = plate.width;
+// Recursion that realizes the cut
+int cut(Piece piece, int X, int Y){
+    int a = piece.lenght;
+    int b = piece.width;
 
     // The plate is smaller than the piece
     if (X < a || Y < b) {
@@ -23,46 +23,35 @@ int cut(Plate plate, int X, int Y){
         return 1;
     }
 
-    // Case where the piece is cut horizontally
+    // Case where the plate is cut vertically
     else if (X > a && Y == b) {
-        return 1 + cut(plate, X - a, Y);
+        return 1 + cut(piece, X - a, Y);
     }
 
-    // Case where the piece is cut vertically
+    // Case where the plate is cut horizontally
     else if (Y > b && X == a) {
-        return 1 + cut(plate, X, Y - b);
+        return 1 + cut(piece, X, Y - b);
     } 
+
     else {
-        return cut(plate, X - a, Y) + cut(plate, a, Y);
+        return cut(piece, X - a, Y) + cut(piece, a, Y);
     }
 }
-
-// Function to insert novaplate in the correct order which is higher to lower by price
-int insertSorted(std::vector<Plate>& plates, Plate& newPlate) {
-    int position = 0;
-
-    // Find the correct position for insertion
-    while (position < (int) plates.size() && newPlate.price > plates[position].price) {
-        position++;
-    }
-
-    plates.insert(plates.begin() + position, newPlate);
-    return position;
-}
-
 
 int main(){
     int X, Y;
-    int n, result = 0;
-    vector<Plate> plates;
+    int n;
 
-    cin >> X >> Y;  // plate dimensions
-    cin >> n;       // types of plates
+    // results[0] = price of the piece, results[1] = Total price
+    vector<int> results(2,0); 
+
+    cin >> X >> Y;  // Plate dimensions
+    cin >> n;       // Types of pieces
 
     for(int i = 1; i <= n; i++){
         int a, b, price;
         cin >> a >> b >> price;
-        if (a > X && b > Y){      // plate is bigger than the original
+        if (a > X && b > Y){      // Piece is bigger than the plate
             continue;
         }
 
@@ -70,16 +59,21 @@ int main(){
         if ((a > X && b <= Y ) || (a <= X && b > Y)) {
             swap(a, b);
         }
-        Plate newPlate = {a, b, price};
-        int indx = insertSorted(plates, newPlate);
-        int temp = cut(plates[indx], X, Y);
-        temp *= plates[indx].price;
-        if(temp > result){
-            result = temp;
+        Piece newPiece = {a, b, price};
+        int temp = cut(newPiece, X, Y);
+        temp *= newPiece.price;
+
+        // Update the results
+        if (results[1] < temp) {
+            results[0] = newPiece.price;
+            results[1] = temp;
+
+        } else if (results[1] == temp) {
+            results[0] = max(results[0], newPiece.price);
         }
     }
 
-    cout << result << endl;
+    cout << results[1] << endl;
     return 0;
 }
 
