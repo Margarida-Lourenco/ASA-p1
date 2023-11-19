@@ -32,7 +32,7 @@ int cut(Plate plate, int X, int Y){
     else if (Y > b && X == a) {
         return 1 + cut(plate, X, Y - b);
     } else {
-        return cut(plate, X - a, Y);
+        return cut(plate, X - a, Y) + cut(plate, a, Y);
     }
 }
 
