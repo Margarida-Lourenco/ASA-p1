@@ -31,7 +31,8 @@ int cut(Plate plate, int X, int Y){
     // Case where the piece is cut vertically
     else if (Y > b && X == a) {
         return 1 + cut(plate, X, Y - b);
-    } else {
+    } 
+    else {
         return cut(plate, X - a, Y) + cut(plate, a, Y);
     }
 }
@@ -61,10 +62,14 @@ int main(){
     for(int i = 1; i <= n; i++){
         int a, b, price;
         cin >> a >> b >> price;
-        if (a > X || b > Y){      // plate is bigger than the original
+        if (a > X && b > Y){      // plate is bigger than the original
             continue;
         }
 
+        // Swap the dimensions to rotate the piece
+        if ((a > X && b <= Y ) || (a <= X && b > Y)) {
+            swap(a, b);
+        }
         Plate newPlate = {a, b, price};
         int indx = insertSorted(plates, newPlate);
         int temp = cut(plates[indx], X, Y);
