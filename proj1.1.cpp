@@ -1,5 +1,5 @@
 #include <iostream>
-#include <list>
+#include <vector>
 using namespace std;
 
 struct Piece{
@@ -9,31 +9,31 @@ struct Piece{
 };
 
 // Recursive function that realizes the cut
-int cut(Piece& piece, int X, int Y, list<Piece>& pieces);
 
+int search_position(vector<Piece>& pieces, int X, int Y) {
+    int position = 0;
 
-// Function that verifies if there is a piece that can be cut
-int verify_pieces(list<Piece>& pieces, int X, int Y) {
-    list<Piece>::iterator iter = next(pieces.begin());
-
-    while (iter != pieces.end()) {
-        if (iter->lenght < X || iter->width < Y) {
-            return cut(*iter, X, Y, pieces);
+    // Find the correct position for insertion
+    while (position < (int) pieces.size()) {
+        if (pieces[position].lenght < X || pieces[position].width < Y) {
+            break;
         }
-        ++iter;
+        position++;
     }
-
-    return 0;
+    return position;
 }
 
-
-int cut(Piece& piece, int X, int Y, list<Piece>& pieces){
+int cut(Piece& piece, int X, int Y, vector<Piece>& pieces){
     int a = piece.lenght;
     int b = piece.width;
 
     // The plate is smaller than the piece
     if (X < a || Y < b) {
-        return verify_pieces(pieces, X, Y);
+        int position = search_position(pieces, X, Y);
+        if (position == 0)
+            return 0;
+        else
+            return cut(pieces[position], X, Y, pieces);
     }
 
     // The plate is equal to the piece
@@ -56,22 +56,25 @@ int cut(Piece& piece, int X, int Y, list<Piece>& pieces){
     }
 }
 
-void insertSorted(std::list<Piece>& pieces, const Piece& newPiece) {
-    list<Piece>::iterator iter = pieces.begin();
+void insertSorted(vector<Piece>& pieces, Piece& newPiece) {
+    int position = 0;
 
-    // Encontrar a posição correta para inserção
-    while (iter != pieces.end() && newPiece.price <= iter->price) {
-        ++iter;
+    // Find the correct position for insertion
+    while (position < (int) pieces.size()) {
+        if (newPiece.price > pieces[position].price) {
+            break;
+        }
+        position++;
     }
 
-    pieces.insert(iter, newPiece);
+    pieces.insert(pieces.begin() + position, newPiece);
 }
 
 int main(){
     int X, Y, n;
     int result = 0;
 
-    list <Piece> pieces;
+    vector<Piece> pieces;
 
     cin >> X >> Y;  // Plate dimensions
     cin >> n;       // Types of pieces
@@ -101,6 +104,3 @@ int main(){
     cout << result << endl;
     return 0;
 }
-
-
-
