@@ -8,42 +8,70 @@ struct Piece{
     int price;
 };
 
-// Recursion that realizes the cut
-int cut(Piece piece, int X, int Y){
+// Recursive function that realizes the cut
+int cut(Piece piece, int X, int Y, vector <Piece> pieces);
+
+
+// Function that verifies if there is a piece that can be cut
+int verify_pieces(vector <Piece> pieces, int X, int Y){
+    int i = 1;
+
+    while (i < (int) pieces.size()){
+        if (pieces[i].lenght < X || pieces[i].width < Y){
+            return cut(pieces[i], X, Y, pieces);
+        }
+        i++;
+    }
+    
+    return 0;
+}
+
+
+int cut(Piece piece, int X, int Y, vector <Piece> pieces){
     int a = piece.lenght;
     int b = piece.width;
 
     // The plate is smaller than the piece
     if (X < a || Y < b) {
-        return 0;
+        return verify_pieces(pieces, X, Y);
     }
 
     // The plate is equal to the piece
     else if (X == a && Y == b) {
-        return 1;
+        return piece.price;
     }
 
     // Case where the plate is cut vertically
     else if (X > a && Y == b) {
-        return 1 + cut(piece, X - a, Y);
+        return piece.price + cut(piece, X - a, Y, pieces);
     }
 
     // Case where the plate is cut horizontally
     else if (Y > b && X == a) {
-        return 1 + cut(piece, X, Y - b);
+        return piece.price + cut(piece, X, Y - b, pieces);
     } 
 
     else {
-        return cut(piece, X - a, Y) + cut(piece, a, Y);
+        return cut(piece, X - a, Y, pieces) + cut(piece, a, Y, pieces);
     }
 }
 
-int main(){
-    int X, Y;
-    int n;
+void insertSorted(std::vector<Piece>& pieces, Piece& newPiece) {
+    int position = 0;
 
-    // results[0] = price of the piece, results[1] = Total price
-    vector<int> results(2,0); 
+    // Find the correct position for insertion
+    while (position < (int) pieces.size() && newPiece.price < pieces[position].price) {
+        position++;
+    }
+
+    pieces.insert(pieces.begin() + position, newPiece);
+}
+
+int main(){
+    int X, Y, n;
+    int result = 0;
+
+    vector <Piece> pieces;
 
     cin >> X >> Y;  // Plate dimensions
     cin >> n;       // Types of pieces
@@ -60,20 +88,17 @@ int main(){
             swap(a, b);
         }
         Piece newPiece = {a, b, price};
-        int temp = cut(newPiece, X, Y);
-        temp *= newPiece.price;
+        insertSorted(pieces, newPiece);
+    }
 
-        // Update the results
-        if (results[1] < temp) {
-            results[0] = newPiece.price;
-            results[1] = temp;
-
-        } else if (results[1] == temp) {
-            results[0] = max(results[0], newPiece.price);
+    for (int i = 0; i < (int) pieces.size(); i++){
+        int temp = cut(pieces[i], X, Y, pieces);
+        if (temp > result){
+            result = temp;
         }
     }
 
-    cout << results[1] << endl;
+    cout << result << endl;
     return 0;
 }
 
