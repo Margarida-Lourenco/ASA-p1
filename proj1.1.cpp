@@ -3,37 +3,28 @@
 using namespace std;
 
 struct Piece{
-    int lenght;
+    int length;
     int width;
     int price;
 };
 
 // Recursive function that realizes the cut
-
-int search_position(vector<Piece>& pieces, int X, int Y) {
-    int position = 0;
-
-    // Find the correct position for insertion
-    while (position < (int) pieces.size()) {
-        if (pieces[position].lenght < X || pieces[position].width < Y) {
-            break;
-        }
-        position++;
-    }
-    return position;
-}
-
-int cut(Piece& piece, int X, int Y, vector<Piece>& pieces){
-    int a = piece.lenght;
+int cut(Piece& piece, int X, int Y, vector<Piece>& pieces, size_t currIndx) {
+    int a = piece.length;
     int b = piece.width;
+
+    // Rotate the piece
+    if ((a > X && b <= Y ) || (a <= X && b > Y)) {
+            swap(a, b);
+        }
 
     // The plate is smaller than the piece
     if (X < a || Y < b) {
-        int position = search_position(pieces, X, Y);
-        if (position == 0)
+        if (currIndx + 1 < pieces.size()) {
+            return cut(pieces[currIndx + 1], X, Y, pieces, currIndx + 1);
+        } else {
             return 0;
-        else
-            return cut(pieces[position], X, Y, pieces);
+        }
     }
 
     // The plate is equal to the piece
@@ -43,24 +34,24 @@ int cut(Piece& piece, int X, int Y, vector<Piece>& pieces){
 
     // Case where the plate is cut vertically
     else if (X > a && Y == b) {
-        return piece.price + cut(piece, X - a, Y, pieces);
+        return piece.price + cut(piece, X - a, Y, pieces, currIndx);
     }
 
     // Case where the plate is cut horizontally
     else if (Y > b && X == a) {
-        return piece.price + cut(piece, X, Y - b, pieces);
+        return piece.price + cut(piece, X, Y - b, pieces, currIndx);
     } 
 
     else {
-        return cut(piece, X - a, Y, pieces) + cut(piece, a, Y, pieces);
+        return cut(piece, X - a, Y, pieces, currIndx) + cut(piece, a, Y, pieces, currIndx);
     }
 }
 
 void insertSorted(vector<Piece>& pieces, Piece& newPiece) {
-    int position = 0;
+    size_t position = 0;
 
     // Find the correct position for insertion
-    while (position < (int) pieces.size()) {
+    while (position < pieces.size()) {
         if (newPiece.price > pieces[position].price) {
             break;
         }
@@ -95,7 +86,7 @@ int main(){
     }
 
     for (Piece piece : pieces) {
-        int temp = cut(piece, X, Y, pieces);
+        int temp = cut(piece, X, Y, pieces, 0);
         if (temp > result) {
             result = temp;
         }

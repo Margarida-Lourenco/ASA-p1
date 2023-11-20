@@ -9,54 +9,47 @@ struct Piece{
 };
 
 // Recursive function that realizes the cut
-int cut(Piece& piece, int X, int Y, list<Piece>& pieces);
 
 
-// Function that verifies if there is a piece that can be cut
-int verify_pieces(list<Piece>& pieces, int X, int Y) {
-    list<Piece>::iterator iter = next(pieces.begin());
+#include <iostream>
+#include <list>
 
-    while (iter != pieces.end()) {
-        if (iter->lenght < X || iter->width < Y) {
-            return cut(*iter, X, Y, pieces);
-        }
-        ++iter;
-    }
-
-    return 0;
-}
-
-
-int cut(Piece& piece, int X, int Y, list<Piece>& pieces){
+int cut(const Piece& piece, int X, int Y, list<Piece>& pieces, list<Piece>::iterator iter) {
     int a = piece.lenght;
     int b = piece.width;
 
-    // The plate is smaller than the piece
+    // A placa é menor que a peça
     if (X < a || Y < b) {
-        return verify_pieces(pieces, X, Y);
+        auto nextIter = std::next(iter);
+        if (nextIter != pieces.end()) {
+            // Chamar a função recursivamente para a próxima peça
+            return cut(*nextIter, X, Y, pieces, nextIter);
+        } else {
+            return 0;  // Se não houver próxima peça, retorne 0 ou o valor desejado
+        }
     }
 
-    // The plate is equal to the piece
+    // A placa é igual à peça
     else if (X == a && Y == b) {
         return piece.price;
     }
 
-    // Case where the plate is cut vertically
+    // Caso em que a placa é cortada verticalmente
     else if (X > a && Y == b) {
-        return piece.price + cut(piece, X - a, Y, pieces);
+        return piece.price + cut(piece, X - a, Y, pieces, iter);
     }
 
-    // Case where the plate is cut horizontally
+    // Caso em que a placa é cortada horizontalmente
     else if (Y > b && X == a) {
-        return piece.price + cut(piece, X, Y - b, pieces);
+        return piece.price + cut(piece, X, Y - b, pieces, iter);
     } 
 
     else {
-        return cut(piece, X - a, Y, pieces) + cut(piece, a, Y, pieces);
+        return cut(piece, X - a, Y, pieces, iter) + cut(piece, a, Y, pieces, iter);
     }
 }
 
-void insertSorted(std::list<Piece>& pieces, const Piece& newPiece) {
+void insertSorted(list<Piece>& pieces, const Piece& newPiece) {
     list<Piece>::iterator iter = pieces.begin();
 
     // Encontrar a posição correta para inserção
@@ -92,7 +85,7 @@ int main(){
     }
 
     for (Piece piece : pieces) {
-        int temp = cut(piece, X, Y, pieces);
+        int temp = cut(piece, X, Y, pieces, pieces.begin());
         if (temp > result) {
             result = temp;
         }
