@@ -3,43 +3,42 @@
 using namespace std;
 
 struct Piece{
-    int lenght;
+    int length;
     int width;
     int price;
 };
 
 // Recursive function that realizes the cut
-
-
-#include <iostream>
-#include <list>
-
-int cut(const Piece& piece, int X, int Y, list<Piece>& pieces, list<Piece>::iterator iter) {
-    int a = piece.lenght;
+int cut(Piece& piece, int X, int Y, list<Piece>& pieces, list<Piece>::iterator iter) {
+    int a = piece.length;
     int b = piece.width;
 
-    // A placa é menor que a peça
+    // Rotate the piece
+    if ((a > X && b <= Y ) || (a <= X && b > Y)) {
+            swap(a, b);
+    } 
+
+    // The plate is smaller than the piece
     if (X < a || Y < b) {
-        auto nextIter = std::next(iter);
+        list<Piece>::iterator nextIter = std::next(iter);
         if (nextIter != pieces.end()) {
-            // Chamar a função recursivamente para a próxima peça
             return cut(*nextIter, X, Y, pieces, nextIter);
         } else {
-            return 0;  // Se não houver próxima peça, retorne 0 ou o valor desejado
+            return 0; 
         }
     }
 
-    // A placa é igual à peça
+    // The plate is equal to the piece
     else if (X == a && Y == b) {
         return piece.price;
     }
 
-    // Caso em que a placa é cortada verticalmente
+    // Case where the plate is cut vertically
     else if (X > a && Y == b) {
         return piece.price + cut(piece, X - a, Y, pieces, iter);
     }
 
-    // Caso em que a placa é cortada horizontalmente
+    // Case where the plate is cut horizontally
     else if (Y > b && X == a) {
         return piece.price + cut(piece, X, Y - b, pieces, iter);
     } 
@@ -49,10 +48,10 @@ int cut(const Piece& piece, int X, int Y, list<Piece>& pieces, list<Piece>::iter
     }
 }
 
-void insertSorted(list<Piece>& pieces, const Piece& newPiece) {
+void insertSorted(list<Piece>& pieces, Piece& newPiece) {
     list<Piece>::iterator iter = pieces.begin();
 
-    // Encontrar a posição correta para inserção
+    // Find the correct position for insertion
     while (iter != pieces.end() && newPiece.price <= iter->price) {
         ++iter;
     }

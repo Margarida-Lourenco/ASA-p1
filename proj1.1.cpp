@@ -16,7 +16,7 @@ int cut(Piece& piece, int X, int Y, vector<Piece>& pieces, size_t currIndx) {
     // Rotate the piece
     if ((a > X && b <= Y ) || (a <= X && b > Y)) {
             swap(a, b);
-        }
+    }
 
     // The plate is smaller than the piece
     if (X < a || Y < b) {
