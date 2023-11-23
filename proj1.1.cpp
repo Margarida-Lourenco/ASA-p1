@@ -8,43 +8,30 @@ struct Piece{
     int price;
 };
 
+#define max(a, b) (a > b ? a : b)
+
 // Recursive function that realizes the cut
-int cut(Piece& piece, int X, int Y, vector<Piece>& pieces, size_t currIndx) {
-    int a = piece.length;
-    int b = piece.width;
+int maxpriceCut(vector<Piece>& pieces, int X, int Y) {
+    vector<vector<int>> dp(X + 1, vector<int>(Y + 1, 0));
 
-    // Rotate the piece
-    if ((a > X && b <= Y ) || (a <= X && b > Y)) {
-            swap(a, b);
-    }
+    for (Piece& piece : pieces) {
+        for (int i = piece.length; i <= X; i++) {
+            for (int j = piece.width; j <= Y; j++) {
+                dp[i][j] = max(dp[i][j], max(dp[i - piece.length][j] + piece.price, dp[i][j - piece.width] + piece.price));
+            }
+        }
 
-    // The plate is smaller than the piece
-    if (X < a || Y < b) {
-        if (currIndx + 1 < pieces.size()) {
-            return cut(pieces[currIndx + 1], X, Y, pieces, currIndx + 1);
-        } else {
-            return 0;
+        // Rotate the piece
+        swap(piece.length, piece.width);
+
+        for (int i = piece.length; i <= X; i++) {
+            for (int j = piece.width; j <= Y; j++) {
+                dp[i][j] = max(dp[i][j], max(dp[i - piece.length][j] + piece.price, dp[i][j - piece.width] + piece.price));
+            }
         }
     }
 
-    // The plate is equal to the piece
-    else if (X == a && Y == b) {
-        return piece.price;
-    }
-
-    // Case where the plate is cut vertically
-    else if (X > a && Y == b) {
-        return piece.price + cut(piece, X - a, Y, pieces, currIndx);
-    }
-
-    // Case where the plate is cut horizontally
-    else if (Y > b && X == a) {
-        return piece.price + cut(piece, X, Y - b, pieces, currIndx);
-    } 
-
-    else {
-        return cut(piece, X - a, Y, pieces, currIndx) + cut(piece, a, Y, pieces, currIndx);
-    }
+    return dp[X][Y];
 }
 
 void insertSorted(vector<Piece>& pieces, Piece& newPiece) {
@@ -60,6 +47,7 @@ void insertSorted(vector<Piece>& pieces, Piece& newPiece) {
 
     pieces.insert(pieces.begin() + position, newPiece);
 }
+
 
 int main(){
     int X, Y, n;
@@ -85,12 +73,7 @@ int main(){
         insertSorted(pieces, newPiece);
     }
 
-    for (Piece piece : pieces) {
-        int temp = cut(piece, X, Y, pieces, 0);
-        if (temp > result) {
-            result = temp;
-        }
-    }
+    result = maxpriceCut(pieces, Y, X);
 
     cout << result << endl;
     return 0;
