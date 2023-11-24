@@ -1,62 +1,30 @@
+#define max(a, b) (a > b ? a : b)
+
 #include <iostream>
 #include <vector>
 using namespace std;
 
-struct Piece{
-    int length;
-    int width;
-    int price;
-};
-
-#define max(a, b) (a > b ? a : b)
-
 // Recursive function that realizes the cut
-int maxpriceCut(vector<Piece>& pieces, int X, int Y) {
-    vector<vector<int>> dp(X + 1, vector<int>(Y + 1, 0));
+int maxpriceCut(vector<vector<int>>& dp, int X, int Y) {
 
-    for (Piece& piece : pieces) {
-        for (int i = piece.length; i <= X; i++) {
-            for (int j = piece.width; j <= Y; j++) {
-                dp[i][j] = max(dp[i][j], max(dp[i - piece.length][j] + piece.price, dp[i][j - piece.width] + piece.price));
+    //for (k = 0; k < size; k++) {
+        for (int i = 0; i <= X; i++) {
+            for (int j = 0; j <= Y ; j++) {
+                dp[i][j] = max(dp[i][j], max(dp[X -i][j] + dp[i][j], dp[i][Y - j] + dp[i][j]));
             }
         }
-
-        // Rotate the piece
-        swap(piece.length, piece.width);
-
-        for (int i = piece.length; i <= X; i++) {
-            for (int j = piece.width; j <= Y; j++) {
-                dp[i][j] = max(dp[i][j], max(dp[i - piece.length][j] + piece.price, dp[i][j - piece.width] + piece.price));
-            }
-        }
-    }
-
+    //}
     return dp[X][Y];
 }
-
-void insertSorted(vector<Piece>& pieces, Piece& newPiece) {
-    size_t position = 0;
-
-    // Find the correct position for insertion
-    while (position < pieces.size()) {
-        if (newPiece.price > pieces[position].price) {
-            break;
-        }
-        position++;
-    }
-
-    pieces.insert(pieces.begin() + position, newPiece);
-}
-
 
 int main(){
     int X, Y, n;
     int result = 0;
 
-    vector<Piece> pieces;
-
     cin >> X >> Y;  // Plate dimensions
     cin >> n;       // Types of pieces
+
+    vector<vector<int>> dp(X + 1, vector<int>(Y + 1, 0));
 
     for(int i = 1; i <= n; i++){
         int a, b, price;
@@ -65,15 +33,23 @@ int main(){
             continue;
         }
 
-        // Swap the dimensions to rotate the piece
-        if ((a > X && b <= Y ) || (a <= X && b > Y)) {
-            swap(a, b);
+        //Piece newPiece = {a, b, price};
+        if (dp[a][b] < price) {
+            dp[a][b] = price;
         }
-        Piece newPiece = {a, b, price};
-        insertSorted(pieces, newPiece);
+        if (dp[b][a] < price) {
+            dp[b][a] = price;
+        }
     }
 
-    result = maxpriceCut(pieces, Y, X);
+    for (int i = 1; i <= X; i++) {
+        for (int j = 1; j <= Y ; j++) {
+            printf("%d ", dp[i][j]);
+        }
+        printf("\n");
+    }
+
+    result = maxpriceCut(dp, Y, X);
 
     cout << result << endl;
     return 0;
