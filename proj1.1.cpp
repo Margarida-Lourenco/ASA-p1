@@ -4,22 +4,9 @@
 #include <vector>
 using namespace std;
 
-// Recursive function that realizes the cut
-int maxpriceCut(vector<vector<int>>& dp, int X, int Y) {
-
-    //for (k = 0; k < size; k++) {
-        for (int i = 0; i <= X; i++) {
-            for (int j = 0; j <= Y ; j++) {
-                dp[i][j] = max(dp[i][j], max(dp[X -i][j] + dp[i][j], dp[i][Y - j] + dp[i][j]));
-            }
-        }
-    //}
-    return dp[X][Y];
-}
-
+// Recursive function that realizes the cuts
 int main(){
     int X, Y, n;
-    int result = 0;
 
     cin >> X >> Y;  // Plate dimensions
     cin >> n;       // Types of pieces
@@ -29,28 +16,29 @@ int main(){
     for(int i = 1; i <= n; i++){
         int a, b, price;
         cin >> a >> b >> price;
-        if (a > X && b > Y){      // Piece is bigger than the plate
-            continue;
-        }
 
-        //Piece newPiece = {a, b, price};
-        if (dp[a][b] < price) {
-            dp[a][b] = price;
+        if (a <= X && b <= Y) {
+            dp[a][b] = max(dp[a][b], price);
         }
-        if (dp[b][a] < price) {
-            dp[b][a] = price;
+        // Rotate 
+        if (a <= Y && b <= X) {
+            dp[b][a] = max(dp[b][a], price);
         }
     }
 
     for (int i = 1; i <= X; i++) {
-        for (int j = 1; j <= Y ; j++) {
-            printf("%d ", dp[i][j]);
+        for (int j = 1; j <= Y; j++) {
+            for (int k = 1; k <= i; k++) {
+                // Cut vertically
+                dp[i][j] = max(dp[i][j], dp[k][j] + dp[i - k][j]);
+            }
+            for (int k = 1; k <= j; k++) {
+                // Cut horizontally
+                dp[i][j] = max(dp[i][j], dp[i][k] + dp[i][j - k]);
+            }
         }
-        printf("\n");
     }
 
-    result = maxpriceCut(dp, Y, X);
-
-    cout << result << endl;
+    cout << dp[X][Y] << endl;
     return 0;
 }
